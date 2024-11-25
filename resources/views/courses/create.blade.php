@@ -4,8 +4,10 @@
 @section('content')
     <div class="container">
         <h1 class="text-center mt-3"><a href="{{ route('courses.index') }}">Courses</a></h1>
+        <h1 class="text-left ">Create Course</h1>
 
-        <form action="{{ route('courses.store') }}" method="POST" class="m-5" enctype="multipart/form-data">
+
+        <form action="{{ route('courses.store') }}" method="POST" class="m-3" enctype="multipart/form-data">
             @csrf
             <label for="name">Course name</label>
             <input type="name" name="name" placeholder="Course Name" class="form-control mb-3 @error('name') is-invalid @enderror" value="{{ old('name') }}">
