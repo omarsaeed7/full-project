@@ -6,6 +6,15 @@
     <div class="mx-5">
         {{-- Content --}}
         <h1 class="text-center mt-3"><a href="{{ route('courses.index') }}">Courses</a></h1>
+        {{-- Success Of Creation msg --}}
+        @if (session('msg'))
+
+        <div class="alert alert-{{session('type')}} alert-dismissible fade show">
+            {{ session('msg')}} {{--session is a way to send data between pages | so we take the msg from the controller and show it here --}}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        @endif
+        {{--  --}}
         <div class="d-flex justify-content-between">
             {{-- Trash --}}
             <a href="{{ route('courses.trash') }}" class="btn btn-danger mb-3"><i class="fas fa-trash"></i> Trashed Courses</a>

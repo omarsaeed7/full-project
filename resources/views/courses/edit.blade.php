@@ -46,7 +46,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary"><i class="fas fa-pen"></i> Create</button>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-pen"></i> Update</button>
         </form>
     </div>
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Course;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 
 class CourseController extends Controller
@@ -49,19 +50,11 @@ class CourseController extends Controller
         return view('courses.index');
     }
 
-
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-
         return view('courses.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {   //Store Process
         /*
@@ -94,37 +87,54 @@ class CourseController extends Controller
         ]);
         // Redirection
         // return response()->json($course, 201); // return to the json page contain user inputs data
-        return redirect()->route('courses.index');
+        return redirect()
+            ->route('courses.index')
+            ->with('msg', 'Course Created Successfully!')
+            ->with('type', 'success');
+
+        /* Second Way
+            $data = $request->except('_token', 'image'); // take the data from the FORM without the token and the image path
+            /* $data will look like this
+                array:4 [▼ // app/Http/Controllers/CourseController.php:75
+                    "name" => "Avram Bray"
+                    "content" => "Quae hic consequatur"
+                    "price" => "610"
+                    "hours" => "10"
+                    ]
+            /*
+            $data['image'] = $imagePath; // store the path in image field
+            /* $data will look like this
+                array:4 [▼ // app/Http/Controllers/CourseController.php:75
+                    "name" => "Avram Bray"
+                    "content" => "Quae hic consequatur"
+                    "price" => "610"
+                    "hours" => "10"
+                    "image" => "img"
+                    ]
+            /*
+            Courese::create($data); // store the data to to data base
+        */
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
-        //
         $course = Course::find($id);
-        return view('courses.show',compact('course'));
+        return view('courses.show', compact('course'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(string $id)
     {
         //
         $course = Course::find($id);
         // If the course is not found, return a 404 error
         if (!$course) {
-            return response()->json(['message' => 'Course not found'], 404);
+            abort(404);
+            // return response()->json(['message' => 'Course not found'], 404);
         }
 
         return view('courses.edit', compact('course'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, string $id)
     {
         //
@@ -148,16 +158,14 @@ class CourseController extends Controller
         if ($request->hasFile('image')) {
             // Delete the old image if a new one is uploaded
             if ($course->image) {
-                Storage::delete('public/' . $course->image);
+                File::delete(public_path('storage/').$course->image);
             }
-
             // Store the new image
             $imagePath = $request->file('image')->store('courses/images', 'public');
         } else {
             // Keep the old image if no new image is uploaded
             $imagePath = $course->image;
         }
-
         // Update the course
         $course->update([
             'name' => $request->input('name'),
@@ -166,18 +174,20 @@ class CourseController extends Controller
             'price' => $request->input('price'),
             'hours' => $request->input('hours'),
         ]);
-        return redirect()->route('courses.index');
-
+        return redirect()
+            ->route('courses.index')
+            ->with('msg', 'Course Updated!')
+            ->with('type', 'info');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function delete(string $id)
     {
         // DELETE FROM courses where id = $id
         Course::destroy($id);
-        return redirect()->back(); // stay in the same route
+        return redirect()
+            ->back()
+            ->with('msg', 'Course Deleted!')
+            ->with('type', 'danger'); // stay in the same route
     }
 
     public function trash()
@@ -194,7 +204,9 @@ class CourseController extends Controller
     }
     public function destroy(string $id)
     {
-        $course = Course::onlyTrashed()->find($id)->forceDelete();
+        $course = Course::onlyTrashed()->find($id);
+        File::delete(public_path('storage/').$course->image);
+        $course->forceDelete();
         // return redirect()->back(); // return to the latest route user visit
         return redirect(route('courses.trash'));
     }
