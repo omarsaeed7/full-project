@@ -10,3 +10,5 @@
 8. Seeding
 9. Migrations
 10. Bootsrap over tailwind css
+11. Sorting
+12. Searching
